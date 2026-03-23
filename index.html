@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container">
+        <header id="header">Historical Events</header>
+        <div id="controls">
+            <div id="search">
+                <label for="searchInput">Search</label>
+                <input type="text" id="searchInput">
+            </div>
+            <div id="filter-container">
+                <button>Events</button>
+                <button>Births</button>
+                <button>Deaths</button>
+            </div>
+            <br>
+            <div id="sort-container">
+                <label for="sortSelect">Sort By</label>
+                <select id="sortSelect">
+                    <option value="asc">Oldest → Newest</option>
+                    <option value="desc">Newest → Oldest</option>
+                </select>
+            </div>
+            
+        </div>
+        <div id="results"></div>
+    </div>
+</body>
+</html>
