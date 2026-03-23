@@ -21,3 +21,37 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     margin-top: 40px;
 }
+#header{
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+    font-size: 2rem;
+    color: #5a3e2b;
+}
+#controls{
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+#filter-container button{
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #f0e6d8;
+    color: #5a3e2b;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#filter-container button:hover{
+    background-color: #e6d3b3;
+    transform: translateY(-1px);
+}
+
+#filter-container button.active{
+    background-color: #5a3e2b;
+    color: white;
+}
