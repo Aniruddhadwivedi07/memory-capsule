@@ -55,3 +55,19 @@ body {
     background-color: #5a3e2b;
     color: white;
 }
+
+
+#sort-container select{
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#sort-container select:focus{
+    border-color: #5a3e2b;
+    box-shadow: 0 0 5px rgba(90, 62, 43, 0.3);
+}
