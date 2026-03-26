@@ -71,3 +71,32 @@ body {
     border-color: #5a3e2b;
     box-shadow: 0 0 5px rgba(90, 62, 43, 0.3);
 }
+
+#results{
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.card{
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+}
+
+.card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.card h3{
+    color: #5a3e2b;
+    margin-bottom: 8px;
+}
+
+.card p{
+    color: #555;
+    font-size: 14px;
+}

@@ -23,6 +23,7 @@ function renderData(data) {
 
     data.forEach(item => {
         const card = document.createElement("div");
+        card.classList.add("card");
 
         card.innerHTML = `
             <h3>${item.year}</h3>
