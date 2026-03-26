@@ -1,8 +1,10 @@
-
 let originalData = [];
 
 async function fetchData() {
     try {
+        const container = document.getElementById("results");
+        container.innerHTML = "<p>Loading...</p>";
+
         const response = await fetch("https://history.muffinlabs.com/date/3/21");
 
         const data = await response.json();
@@ -13,6 +15,8 @@ async function fetchData() {
 
     } catch (error) {
         console.error("Error fetching data:", error);
+        const container = document.getElementById("results");
+        container.innerHTML = "<p>Something went wrong. Please try again.</p>";
     }
 }
 

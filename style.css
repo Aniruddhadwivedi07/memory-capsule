@@ -100,3 +100,29 @@ body {
     color: #555;
     font-size: 14px;
 }
+
+@media (max-width: 600px) {
+    #controls{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #search-container input{
+        width: 100%;
+    }
+
+    #sort-container select{
+        width: 100%;
+    }
+
+    #filter-container{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    #container{
+        width: 95%;
+        padding: 15px;
+    }
+}
