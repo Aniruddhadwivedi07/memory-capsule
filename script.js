@@ -39,3 +39,20 @@ function renderData(data) {
 }
 
 fetchData();
+
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function () {
+    const query = searchInput.value.toLowerCase();
+
+    if (query === "") {
+        renderData(originalData);
+        return;
+    }
+
+    const filteredData = originalData.filter(item => {
+        return item.text.toLowerCase().includes(query);
+    });
+
+    renderData(filteredData);
+});
