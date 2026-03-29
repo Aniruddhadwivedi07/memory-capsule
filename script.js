@@ -1,4 +1,6 @@
 let originalData = [];
+let currentType = "Events";
+let fullData = {};
 
 async function fetchData() {
     try {
@@ -9,7 +11,8 @@ async function fetchData() {
 
         const data = await response.json();
 
-        originalData = data.data.Events;
+        fullData = data.data;
+        originalData = fullData[currentType];
 
         renderData(originalData);
 
@@ -55,4 +58,34 @@ searchInput.addEventListener("input", function () {
     });
 
     renderData(filteredData);
+});
+const filterButtons = document.querySelectorAll("#filter-container button");
+
+filterButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        filterButtons.forEach(btn => btn.classList.remove("active"));
+
+        button.classList.add("active");
+
+        currentType = button.textContent;
+        
+        originalData = fullData[currentType];
+        renderData(originalData);
+    });
+});
+
+const sortSelect = document.getElementById("sortSelect");
+
+sortSelect.addEventListener("change", function () {
+    const order = sortSelect.value;
+
+    let sortedData = [...originalData];
+
+    if (order === "asc") {
+        sortedData.sort((a, b) => a.year - b.year);
+    } else {
+        sortedData.sort((a, b) => b.year - a.year);
+    }
+
+    renderData(sortedData);
 });
