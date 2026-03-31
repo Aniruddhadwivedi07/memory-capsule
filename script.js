@@ -2,6 +2,9 @@ let originalData = [];
 let currentType = "Events";
 let fullData = {};
 
+let currentQuery = "";
+let currentSort = "asc";
+
 async function fetchData() {
     try {
         const container = document.getElementById("results");
@@ -21,6 +24,24 @@ async function fetchData() {
         const container = document.getElementById("results");
         container.innerHTML = "<p>Something went wrong. Please try again.</p>";
     }
+}
+
+function applyAllFilters() {
+    let data = [...originalData];
+
+    // Search
+    if (currentQuery !== "") {
+        data = data.filter(item => item.text.toLowerCase().includes(currentQuery));
+    }
+
+    // Sort
+    if (currentSort === "asc") {
+        data.sort((a, b) => a.year - b.year);
+    } else {
+        data.sort((a, b) => b.year - a.year);
+    }
+
+    renderData(data);
 }
 
 function renderData(data) {
@@ -46,18 +67,8 @@ fetchData();
 const searchInput = document.getElementById("searchInput");
 
 searchInput.addEventListener("input", function () {
-    const query = searchInput.value.toLowerCase();
-
-    if (query === "") {
-        renderData(originalData);
-        return;
-    }
-
-    const filteredData = originalData.filter(item => {
-        return item.text.toLowerCase().includes(query);
-    });
-
-    renderData(filteredData);
+    currentQuery = searchInput.value.toLowerCase();
+    applyAllFilters();
 });
 const filterButtons = document.querySelectorAll("#filter-container button");
 
@@ -70,22 +81,13 @@ filterButtons.forEach(button => {
         currentType = button.textContent;
         
         originalData = fullData[currentType];
-        renderData(originalData);
+        applyAllFilters();
     });
 });
 
 const sortSelect = document.getElementById("sortSelect");
 
 sortSelect.addEventListener("change", function () {
-    const order = sortSelect.value;
-
-    let sortedData = [...originalData];
-
-    if (order === "asc") {
-        sortedData.sort((a, b) => a.year - b.year);
-    } else {
-        sortedData.sort((a, b) => b.year - a.year);
-    }
-
-    renderData(sortedData);
+    currentSort = sortSelect.value;
+    applyAllFilters();
 });
