@@ -44,22 +44,42 @@ function applyAllFilters() {
     renderData(data);
 }
 
-function renderData(data) {
+async function renderData(data) {
     const container = document.getElementById("results");
 
     container.innerHTML = "";
 
-    data.forEach(item => {
+    // Create promises for fetching images
+    const cards = await Promise.all(data.map(async (item) => {
+        let imageUrl = "";
+
+        try {
+            if (item.links && item.links.length > 0) {
+                const title = item.links[0].title;
+
+                const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
+                const wikiData = await res.json();
+
+                imageUrl = wikiData.thumbnail?.source || "";
+            }
+        } catch (e) {
+            console.error("Image fetch failed", e);
+        }
+
         const card = document.createElement("div");
         card.classList.add("card");
 
         card.innerHTML = `
+            ${imageUrl ? `<img src="${imageUrl}" alt="image" style="width:100%; border-radius:10px; margin-bottom:10px;"/>` : ""}
             <h3>${item.year}</h3>
             <p>${item.text}</p>
         `;
 
-        container.appendChild(card);
-    });
+        return card;
+    }));
+
+    // Append all cards
+    cards.forEach(card => container.appendChild(card));
 }
 
 fetchData();
