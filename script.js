@@ -49,7 +49,6 @@ async function renderData(data) {
 
     container.innerHTML = "";
 
-    // Create promises for fetching images
     const cards = await Promise.all(data.map(async (item) => {
         let imageUrl = "";
 
@@ -73,12 +72,29 @@ async function renderData(data) {
             ${imageUrl ? `<img src="${imageUrl}" alt="image" style="width:100%; border-radius:10px; margin-bottom:10px;"/>` : ""}
             <h3>${item.year}</h3>
             <p>${item.text}</p>
+            <button class="fav-btn">♡</button>
         `;
+
+        const favBtn = card.querySelector(".fav-btn");
+
+        favBtn.addEventListener("click", () => {
+            let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+            const exists = favorites.find(f => f.text === item.text);
+
+            if (exists) {
+                favorites = favorites.filter(f => f.text !== item.text);
+                favBtn.textContent = "♡";
+            } else {
+                favorites.push(item);
+                favBtn.textContent = "❤️";
+            }
+
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+        });
 
         return card;
     }));
-
-    // Append all cards
     cards.forEach(card => container.appendChild(card));
 }
 
@@ -110,4 +126,22 @@ const sortSelect = document.getElementById("sortSelect");
 sortSelect.addEventListener("change", function () {
     currentSort = sortSelect.value;
     applyAllFilters();
+});
+const themeToggle = document.getElementById("themeToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+    themeToggle.textContent = "☀️";
+}
+
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    if (document.body.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️";
+    } else {
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙";
+    }
 });
