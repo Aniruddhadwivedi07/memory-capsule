@@ -9,7 +9,9 @@ let currentQuery = "";
 let currentSort = "asc";
 
 let loadingStartTime = 0;
-const MIN_LOADING_TIME = 800; // ms
+const MIN_LOADING_TIME = 800; 
+
+const imageCache = {};
 
 function showLoadingSkeleton() {
     const container = document.getElementById("results");
@@ -77,31 +79,61 @@ async function renderData(data) {
 
     container.innerHTML = "";
 
-    const cards = await Promise.all(data.map(async (item) => {
-        let imageUrl = "";
+    const countDiv = document.createElement("div");
+    countDiv.style.marginBottom = "15px";
+    countDiv.style.fontWeight = "bold";
+    countDiv.textContent = `Showing ${data.length} result${data.length !== 1 ? 's' : ''}`;
+    container.appendChild(countDiv);
 
-        try {
-            if (item.links && item.links.length > 0) {
-                const title = item.links[0].title;
+    if (data.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.textAlign = "center";
+        empty.style.padding = "40px";
+        empty.innerHTML = `
+            <p style="font-size:18px; margin-bottom:10px;">No results found 😢</p>
+            <p style="color:#777;">Try a different search or filter</p>
+        `;
+        container.appendChild(empty);
+        return;
+    }
 
-                const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
-                const wikiData = await res.json();
-
-                imageUrl = wikiData.thumbnail?.source || "";
-            }
-        } catch (e) {
-            console.error("Image fetch failed", e);
-        }
-
+    data.forEach(item => {
         const card = document.createElement("div");
         card.classList.add("card");
 
-        card.innerHTML = `
-            ${imageUrl ? `<img src="${imageUrl}" alt="image" style="width:100%; border-radius:10px; margin-bottom:10px;"/>` : ""}
+        const img = document.createElement("img");
+        img.style.width = "100%";
+        img.style.borderRadius = "10px";
+        img.style.marginBottom = "10px";
+        img.loading = "lazy";
+
+        card.appendChild(img);
+
+        card.innerHTML += `
             <h3>${item.year}</h3>
             <p>${item.text}</p>
             <button class="fav-btn">♡</button>
         `;
+
+
+        if (item.links && item.links.length > 0) {
+            const title = item.links[0].title;
+
+            if (imageCache[title]) {
+                img.src = imageCache[title];
+            } else {
+                fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+                    .then(res => res.json())
+                    .then(wikiData => {
+                        const url = wikiData.thumbnail?.source || "";
+                        if (url) {
+                            imageCache[title] = url;
+                            img.src = url;
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
 
         const favBtn = card.querySelector(".fav-btn");
 
@@ -121,9 +153,8 @@ async function renderData(data) {
             localStorage.setItem("favorites", JSON.stringify(favorites));
         });
 
-        return card;
-    }));
-    cards.forEach(card => container.appendChild(card));
+        container.appendChild(card);
+    });
 }
 
 fetchData();
@@ -161,7 +192,7 @@ const dateInput = document.getElementById("dateInput");
 
 if (dateInput) {
     dateInput.addEventListener("change", () => {
-        const value = dateInput.value; // format: YYYY-MM-DD
+        const value = dateInput.value; 
 
         if (!value) return;
 
