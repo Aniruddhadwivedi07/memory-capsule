@@ -2,15 +2,38 @@ let originalData = [];
 let currentType = "Events";
 let fullData = {};
 
+let currentMonth = 3;
+let currentDay = 21;
+
 let currentQuery = "";
 let currentSort = "asc";
 
-async function fetchData() {
+let loadingStartTime = 0;
+const MIN_LOADING_TIME = 800; // ms
+
+function showLoadingSkeleton() {
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    for (let i = 0; i < 6; i++) {
+        const skeleton = document.createElement("div");
+        skeleton.classList.add("card");
+        skeleton.innerHTML = `
+            <div style="height:150px; background:#ddd; border-radius:10px; margin-bottom:10px;"></div>
+            <div style="height:20px; width:40%; background:#ddd; margin-bottom:8px;"></div>
+            <div style="height:14px; width:80%; background:#eee;"></div>
+        `;
+        container.appendChild(skeleton);
+    }
+}
+
+async function fetchData(month = currentMonth, day = currentDay) {
     try {
         const container = document.getElementById("results");
-        container.innerHTML = "<p>Loading...</p>";
+        loadingStartTime = Date.now();
+        showLoadingSkeleton();
 
-        const response = await fetch("https://history.muffinlabs.com/date/3/21");
+        const response = await fetch(`https://history.muffinlabs.com/date/${month}/${day}`);
 
         const data = await response.json();
 
@@ -46,6 +69,11 @@ function applyAllFilters() {
 
 async function renderData(data) {
     const container = document.getElementById("results");
+
+    const elapsed = Date.now() - loadingStartTime;
+    const delay = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+    await new Promise(res => setTimeout(res, delay));
 
     container.innerHTML = "";
 
@@ -127,6 +155,23 @@ sortSelect.addEventListener("change", function () {
     currentSort = sortSelect.value;
     applyAllFilters();
 });
+
+
+const dateInput = document.getElementById("dateInput");
+
+if (dateInput) {
+    dateInput.addEventListener("change", () => {
+        const value = dateInput.value; // format: YYYY-MM-DD
+
+        if (!value) return;
+
+        const parts = value.split("-");
+        currentMonth = parseInt(parts[1]);
+        currentDay = parseInt(parts[2]);
+
+        fetchData(currentMonth, currentDay);
+    });
+}
 const themeToggle = document.getElementById("themeToggle");
 
 if (localStorage.getItem("theme") === "dark") {
