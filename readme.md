@@ -2,6 +2,9 @@
 
 # 💖 Memory Capsule – Your Digital Time Machine
 
+## 🔗 Live Demo
+👉 https://memory-capsule-three.vercel.app
+
 <p align="center">
   <img src="https://img.shields.io/github/stars/Aniruddhadwivedi07/memory-capsule?style=for-the-badge" />
   <img src="https://img.shields.io/github/forks/Aniruddhadwivedi07/memory-capsule?style=for-the-badge" />
@@ -50,7 +53,7 @@ https://history.muffinlabs.com/date/{month}/{day}
 
 ---
 
-## ✨ Features (Planned)
+## ✨ Features
 
 ### 🔍 Search Functionality
 - Search historical events using keywords (e.g., "India", "war", "technology")
@@ -85,6 +88,27 @@ https://history.muffinlabs.com/date/{month}/{day}
 - Toggle between themes for better user experience
 
 ---
+
+### 📅 Dynamic Date Picker
+- Select any date to explore historical data
+- Real-time API updates based on selected date
+
+### 🖼️ Wikipedia Image Integration
+- Fetches relevant images using Wikipedia API
+- Lazy loading + caching for performance optimization
+
+### ⚡ Optimized Performance
+- Non-blocking rendering for faster UI
+- Image caching to reduce repeated API calls
+- Lazy loading for images
+
+### ⏳ Skeleton Loading UI
+- Smooth loading placeholders instead of blank screen
+- Improved perceived performance
+
+### 📊 Results Feedback
+- Displays number of results dynamically
+- Shows "No results found" state when applicable
 
 ## 🚀 Bonus Features (Optional Enhancements)
 - ⚡ Debounced search input (optimized performance)
@@ -142,20 +166,23 @@ git clone https://github.com/Aniruddhadwivedi07/memory-capsule.git
 - API selected  
 - README created  
 
-### 🔜 Milestone 2 (API Integration)
+### ✅ Milestone 2 (API Integration)
 - Fetch and display data from API  
 - Handle loading states  
 
-### 🔜 Milestone 3 (Core Features)
+### ✅ Milestone 3 (Core Features)
 - Search, filter, and sort implementation  
 - UI interactivity  
 
-### 🔜 Milestone 4 (Final Submission)
+### ✅ Milestone 4 (Final Submission)
 - Code cleanup  
 - Deployment  
 - Documentation  
 
 ---
+
+## 🙏 Credits
+Powered by **Wikipedia API** and **MuffinLabs History API**
 
 ## 💡 Future Scope
 - Add user-created personal memories
