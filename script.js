@@ -2,134 +2,139 @@ let originalData = [];
 let currentType = "Events";
 let fullData = {};
 
-let currentMonth = 3;
-let currentDay = 21;
+let currentMonth = 4;
+let currentDay = 8;
+let targetYear = null;
 
-let currentQuery = "";
 let currentSort = "asc";
-
 let loadingStartTime = 0;
-const MIN_LOADING_TIME = 800; 
-
+const MIN_LOADING_TIME = 800;
 const imageCache = {};
 
 function showLoadingSkeleton() {
     const container = document.getElementById("results");
     container.innerHTML = "";
-
     for (let i = 0; i < 6; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "card-wrapper";
         const skeleton = document.createElement("div");
-        skeleton.classList.add("card");
-        skeleton.innerHTML = `
-            <div style="height:150px; background:#ddd; border-radius:10px; margin-bottom:10px;"></div>
-            <div style="height:20px; width:40%; background:#ddd; margin-bottom:8px;"></div>
-            <div style="height:14px; width:80%; background:#eee;"></div>
-        `;
-        container.appendChild(skeleton);
+        skeleton.classList.add("card", "skeleton-card");
+        wrapper.appendChild(skeleton);
+        container.appendChild(wrapper);
     }
 }
 
-async function fetchData(month = currentMonth, day = currentDay) {
+async function fetchData(month, day) {
     try {
         const container = document.getElementById("results");
         loadingStartTime = Date.now();
         showLoadingSkeleton();
 
         const response = await fetch(`https://history.muffinlabs.com/date/${month}/${day}`);
-
         const data = await response.json();
 
         fullData = data.data;
-        originalData = fullData[currentType];
-
-        renderData(originalData);
-
+        originalData = fullData[currentType] || [];
+        applyAllFilters();
     } catch (error) {
         console.error("Error fetching data:", error);
         const container = document.getElementById("results");
-        container.innerHTML = "<p>Something went wrong. Please try again.</p>";
+        container.innerHTML = "<div class='empty-state'>Something went wrong unraveling history. Please try again.</div>";
     }
 }
 
 function applyAllFilters() {
     let data = [...originalData];
 
-    // Search
-    if (currentQuery !== "") {
-        data = data.filter(item => item.text.toLowerCase().includes(currentQuery));
+    if (targetYear) {
+        data = data.filter(item => parseInt(item.year, 10) === targetYear);
     }
 
-    // Sort
     if (currentSort === "asc") {
-        data.sort((a, b) => a.year - b.year);
+        data.sort((a, b) => {
+            let ya = parseYear(a.year);
+            let yb = parseYear(b.year);
+            return ya - yb;
+        });
     } else {
-        data.sort((a, b) => b.year - a.year);
+        data.sort((a, b) => {
+            let ya = parseYear(a.year);
+            let yb = parseYear(b.year);
+            return yb - ya;
+        });
     }
 
     renderData(data);
 }
 
+function parseYear(yStr) {
+    let isBC = yStr.includes("BC");
+    let match = yStr.match(/\d+/);
+    if (!match) return 0;
+    let num = parseInt(match[0], 10);
+    return isBC ? -num : num;
+}
+
 async function renderData(data) {
     const container = document.getElementById("results");
-
+    const countDiv = document.getElementById("resultsCount");
+    
     const elapsed = Date.now() - loadingStartTime;
     const delay = Math.max(0, MIN_LOADING_TIME - elapsed);
-
     await new Promise(res => setTimeout(res, delay));
 
     container.innerHTML = "";
-
-    const countDiv = document.createElement("div");
-    countDiv.style.marginBottom = "15px";
-    countDiv.style.fontWeight = "bold";
     countDiv.textContent = `Showing ${data.length} result${data.length !== 1 ? 's' : ''}`;
-    container.appendChild(countDiv);
 
     if (data.length === 0) {
-        const empty = document.createElement("div");
-        empty.style.textAlign = "center";
-        empty.style.padding = "40px";
-        empty.innerHTML = `
-            <p style="font-size:18px; margin-bottom:10px;">No results found 😢</p>
-            <p style="color:#777;">Try a different search or filter</p>
+        container.innerHTML = `
+            <div class="empty-state">
+                No historical records found for this precise moment. 🕰️<br>
+                Try adjusting the date filters.
+            </div>
         `;
-        container.appendChild(empty);
         return;
     }
 
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
     data.forEach(item => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "card-wrapper";
         const card = document.createElement("div");
         card.classList.add("card");
 
         const img = document.createElement("img");
-        img.style.width = "100%";
-        img.style.borderRadius = "10px";
-        img.style.marginBottom = "10px";
         img.loading = "lazy";
 
-        card.appendChild(img);
+        const headerDiv = document.createElement("div");
+        headerDiv.className = "card-header";
 
         const titleEl = document.createElement("h3");
         titleEl.textContent = item.year;
 
+        const favBtn = document.createElement("button");
+        favBtn.classList.add("fav-btn");
+        const isFav = favorites.find(f => f.text === item.text);
+        favBtn.textContent = isFav ? "♥" : "♡";
+
+        headerDiv.appendChild(titleEl);
+        headerDiv.appendChild(favBtn);
+
         const textEl = document.createElement("p");
         textEl.textContent = item.text;
 
-        const favBtn = document.createElement("button");
-        favBtn.classList.add("fav-btn");
-        favBtn.textContent = "♡";
-
-        card.appendChild(titleEl);
+        card.appendChild(img);
+        card.appendChild(headerDiv);
         card.appendChild(textEl);
-        card.appendChild(favBtn);
-
+        wrapper.appendChild(card);
 
         if (item.links && item.links.length > 0) {
             const title = item.links[0].title;
-
             if (imageCache[title]) {
                 img.src = imageCache[title];
             } else {
+                img.style.display = 'none'; 
                 fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
                     .then(res => res.json())
                     .then(wikiData => {
@@ -137,94 +142,85 @@ async function renderData(data) {
                         if (url) {
                             imageCache[title] = url;
                             img.src = url;
+                            img.style.display = 'block';
                         }
                     })
                     .catch(() => {});
             }
+        } else {
+            img.style.display = 'none';
         }
 
-
         favBtn.addEventListener("click", () => {
-            let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-
-            const exists = favorites.find(f => f.text === item.text);
+            let favs = JSON.parse(localStorage.getItem("favorites")) || [];
+            const exists = favs.find(f => f.text === item.text);
 
             if (exists) {
-                favorites = favorites.filter(f => f.text !== item.text);
+                favs = favs.filter(f => f.text !== item.text);
                 favBtn.textContent = "♡";
             } else {
-                favorites.push(item);
-                favBtn.textContent = "❤️";
+                favs.push(item);
+                favBtn.textContent = "♥";
             }
-
-            localStorage.setItem("favorites", JSON.stringify(favorites));
+            localStorage.setItem("favorites", JSON.stringify(favs));
         });
 
-        container.appendChild(card);
+        container.appendChild(wrapper);
     });
 }
 
-fetchData();
+const searchBtn = document.getElementById("searchBtn");
+const dayInput = document.getElementById("dayInput");
+const monthInput = document.getElementById("monthInput");
+const yearInput = document.getElementById("yearInput");
 
-const searchInput = document.getElementById("searchInput");
+searchBtn.addEventListener("click", () => {
+    let m = parseInt(monthInput.value, 10);
+    let d = parseInt(dayInput.value, 10);
+    let y = parseInt(yearInput.value, 10);
 
-searchInput.addEventListener("input", function () {
-    currentQuery = searchInput.value.toLowerCase();
-    applyAllFilters();
+
+    if (isNaN(m) || m < 1 || m > 12) m = currentMonth;
+    if (isNaN(d) || d < 1 || d > 31) d = currentDay;
+    
+    targetYear = isNaN(y) ? null : y;
+    
+
+    monthInput.value = m.toString().padStart(2, '0');
+    dayInput.value = d.toString().padStart(2, '0');
+    if (targetYear !== null) yearInput.value = y.toString();
+    else yearInput.value = "";
+
+    if (currentMonth !== m || currentDay !== d) {
+        currentMonth = m;
+        currentDay = d;
+        fetchData(currentMonth, currentDay);
+    } else {
+        applyAllFilters();
+    }
 });
-const filterButtons = document.querySelectorAll("#filter-container button");
 
-filterButtons.forEach(button => {
-    button.addEventListener("click", function () {
-        filterButtons.forEach(btn => btn.classList.remove("active"));
-
-        button.classList.add("active");
-
-        currentType = button.textContent;
-        
-        originalData = fullData[currentType];
+const tabBtns = document.querySelectorAll(".tab-btn");
+tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentType = btn.getAttribute("data-type");
+        originalData = fullData[currentType] || [];
         applyAllFilters();
     });
 });
 
 const sortSelect = document.getElementById("sortSelect");
-
-sortSelect.addEventListener("change", function () {
+sortSelect.addEventListener("change", () => {
     currentSort = sortSelect.value;
     applyAllFilters();
 });
 
+const today = new Date();
+currentMonth = today.getMonth() + 1;
+currentDay = today.getDate();
+monthInput.value = currentMonth.toString().padStart(2, '0');
+dayInput.value = currentDay.toString().padStart(2, '0');
 
-const dateInput = document.getElementById("dateInput");
-
-if (dateInput) {
-    dateInput.addEventListener("change", () => {
-        const value = dateInput.value; 
-
-        if (!value) return;
-
-        const parts = value.split("-");
-        currentMonth = parseInt(parts[1]);
-        currentDay = parseInt(parts[2]);
-
-        fetchData(currentMonth, currentDay);
-    });
-}
-const themeToggle = document.getElementById("themeToggle");
-
-if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-    themeToggle.textContent = "☀️";
-}
-
-themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-
-    if (document.body.classList.contains("dark")) {
-        localStorage.setItem("theme", "dark");
-        themeToggle.textContent = "☀️";
-    } else {
-        localStorage.setItem("theme", "light");
-        themeToggle.textContent = "🌙";
-    }
-});
+fetchData(currentMonth, currentDay);

@@ -3,35 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Heritage History Capsule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="container">
-        <header id="header">Historical Events</header>
-        <div id="controls">
-            <div id="search">
-                <label for="searchInput">Search</label>
-                <input type="text" id="searchInput">
+    <div class="main-container">
+        <header>
+            <div class="logo">
+                <span class="hourglass-icon">⏳</span>
+                <h1>Heritage History Capsule</h1>
             </div>
-            <div id="filter-container">
-                <button class="active">Events</button>
-                <button>Births</button>
-                <button>Deaths</button>
+            <nav class="search-controls">
+                <div class="date-picker">
+                    <div class="date-box">
+                        <label>Day</label>
+                        <input type="text" id="dayInput" placeholder="DD" maxlength="2">
+                    </div>
+                    <div class="date-box">
+                        <label>Month</label>
+                        <input type="text" id="monthInput" placeholder="MM" maxlength="2">
+                    </div>
+                    <div class="date-box">
+                        <label>Year</label>
+                        <input type="text" id="yearInput" placeholder="YYYY" maxlength="4">
+                    </div>
+                </div>
+                <button class="wax-seal-btn" id="searchBtn">SEARCH</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="controls-bar">
+                <div class="tabs">
+                    <button class="tab-btn active" data-type="Events">Events</button>
+                    <button class="tab-btn" data-type="Births">Births</button>
+                    <button class="tab-btn" data-type="Deaths">Deaths</button>
+                </div>
+                <div class="sort-filter-bar">
+                    <div class="sort-box">
+                        <label>Sort By</label>
+                        <select id="sortSelect">
+                            <option value="asc">Oldest to Newest</option>
+                            <option value="desc">Newest to Oldest</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <label>Date Filter 📅</label>
+                    </div>
+                </div>
             </div>
-            <div id="sort-container">
-                <label for="sortSelect">Sort By</label>
-                <select id="sortSelect">
-                    <option value="asc">Oldest → Newest</option>
-                    <option value="desc">Newest → Oldest</option>
-                </select>
+            
+            <div id="resultsCount"></div>
+
+            <div class="results-grid" id="results">
             </div>
-            <input type="date" id="dateInput">
-            <button id="themeToggle">🌙</button>
-        </div>
-        <div id="results"></div>
+        </main>
     </div>
-    <script src="./script.js"> </script>
-    
+    <script src="./script.js"></script>
 </body>
 </html>
