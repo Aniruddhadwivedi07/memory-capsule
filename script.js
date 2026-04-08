@@ -109,11 +109,19 @@ async function renderData(data) {
 
         card.appendChild(img);
 
-        card.innerHTML += `
-            <h3>${item.year}</h3>
-            <p>${item.text}</p>
-            <button class="fav-btn">♡</button>
-        `;
+        const titleEl = document.createElement("h3");
+        titleEl.textContent = item.year;
+
+        const textEl = document.createElement("p");
+        textEl.textContent = item.text;
+
+        const favBtn = document.createElement("button");
+        favBtn.classList.add("fav-btn");
+        favBtn.textContent = "♡";
+
+        card.appendChild(titleEl);
+        card.appendChild(textEl);
+        card.appendChild(favBtn);
 
 
         if (item.links && item.links.length > 0) {
@@ -122,7 +130,7 @@ async function renderData(data) {
             if (imageCache[title]) {
                 img.src = imageCache[title];
             } else {
-                fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+                fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
                     .then(res => res.json())
                     .then(wikiData => {
                         const url = wikiData.thumbnail?.source || "";
@@ -135,7 +143,6 @@ async function renderData(data) {
             }
         }
 
-        const favBtn = card.querySelector(".fav-btn");
 
         favBtn.addEventListener("click", () => {
             let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
